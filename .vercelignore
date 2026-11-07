@@ -1,0 +1,6 @@
+# Ignore heavy installers on Vercel (hosted via GitHub LFS)
+*.zip
+*.exe
+Shamil.app/
+.gitattributes
+README.md
