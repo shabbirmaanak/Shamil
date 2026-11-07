@@ -18,14 +18,19 @@
 
 <header class="nav glass">
   <a class="brand" href="#top"><img src="/assets/icon.svg" alt=""><b>Shamil</b><span class="ar">شامل</span></a>
-  <nav>
+  <nav id="navMenu">
     <a href="#how">How it works</a>
     <a href="#features">Features</a>
     <a href="#safety">Safety</a>
     <a href="#install">Install</a>
     <a href="#faq">FAQ</a>
   </nav>
-  <a class="btn gold sm" href="#download">Download</a>
+  <div class="nav-right">
+    <a class="btn gold sm nav-dl" href="#download">Download</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </header>
 
 <main id="top">
@@ -220,7 +225,7 @@
   <p class="fine">© <span data-year></span> Shamil · Runs offline on macOS &amp; Windows · <a href="#faq">Privacy</a><span data-contact></span></p>
 </footer>
 
-<div class="lightbox" hidden><img alt=""></div>
+<div class="lightbox" hidden><button class="lightbox-close" aria-label="Close image preview">✕</button><img alt=""></div>
 <script src="/assets/site.js"></script>
 </body>
 </html>

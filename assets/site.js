@@ -12,12 +12,24 @@
   function trackDownload(platform) {
     try {
       var payload = JSON.stringify({ platform: platform });
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon('/api/track', new Blob([payload], { type: 'application/json' }));
-      } else {
-        fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+      var sent = false;
+      if (window.fetch) {
+        fetch('/api/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          keepalive: true
+        }).then(function () { sent = true; }).catch(function () {});
       }
-    } catch (_) {}
+      if (!sent && navigator.sendBeacon) {
+        navigator.sendBeacon('/api/track', new Blob([payload], { type: 'application/json' }));
+      }
+    } catch (_) {
+      try {
+        var ping = new Image();
+        ping.src = '/api/track?platform=' + encodeURIComponent(platform) + '&t=' + Date.now();
+      } catch (e) {}
+    }
   }
 
   $$('[data-dl]').forEach(function (a) {
@@ -69,11 +81,41 @@
     s.querySelector('video').src = C.tutorialVideo;
   }
 
+  // Mobile nav toggle
+  var navEl = document.querySelector('.nav');
+  var toggleBtn = document.getElementById('navToggle');
+  if (toggleBtn && navEl) {
+    toggleBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = navEl.classList.toggle('open');
+      toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function (e) {
+      if (!navEl.contains(e.target)) {
+        navEl.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    $$('#navMenu a, .nav-dl').forEach(function (link) {
+      link.addEventListener('click', function () {
+        navEl.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
   // Lightbox
   var lb = document.querySelector('.lightbox');
+  var lbClose = document.querySelector('.lightbox-close');
   $$('figure img').forEach(function (img) {
     img.onclick = function () { lb.querySelector('img').src = img.src; lb.hidden = false; };
   });
+  if (lbClose) {
+    lbClose.onclick = function (e) {
+      e.stopPropagation();
+      lb.hidden = true;
+    };
+  }
   lb.onclick = function () { lb.hidden = true; };
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') lb.hidden = true; });
 

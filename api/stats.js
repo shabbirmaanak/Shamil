@@ -1,15 +1,13 @@
-export default async function handler(req, res) {
+const DEFAULT_DB_URL = 'https://shamil-shabbirmaanak.aws-ap-south-1.turso.io';
+const DEFAULT_AUTH_TOKEN = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3OTQwNDQwMjksImlkIjoiMDFhMWI1NWItNGMwMS03OGU5LWJhZmMtMWM0ZmRkM2U1NmQ3Iiwia2lkIjoicnNxM3J2QXI5MFloTkV0SGltMjhrRjVoUzBTbG1xcHc0M3JOVFRCaEZPUSIsInJpZCI6IjQ4YTc5ZTc2LTYzOGItNDU4MC05NTMwLTY4ODljZWEyZjZiMiJ9.ty5We6KcqkVcyJ5md-pSziHrhchbneL69Psy1W0cX8k6nhv6uuUL0LxoeERvWUFp4Y1TV38-WfV2NhISI-5DBA';
+
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store, max-age=0');
 
-  const dbUrl = (process.env.TURSO_DATABASE_URL || '').replace(/^libsql:\/\//, 'https://');
-  const token = process.env.TURSO_AUTH_TOKEN || '';
-
-  if (!dbUrl || !token) {
-    return res.status(500).json({
-      error: 'Environment variables TURSO_DATABASE_URL and/or TURSO_AUTH_TOKEN are missing in Vercel.'
-    });
-  }
+  const rawUrl = process.env.TURSO_DATABASE_URL || DEFAULT_DB_URL;
+  const dbUrl = rawUrl.replace(/^libsql:\/\//, 'https://');
+  const token = process.env.TURSO_AUTH_TOKEN || DEFAULT_AUTH_TOKEN;
 
   try {
     const endpoint = `${dbUrl.replace(/\/$/, '')}/v2/pipeline`;
@@ -36,7 +34,7 @@ export default async function handler(req, res) {
           {
             type: 'execute',
             stmt: {
-              sql: 'SELECT platform, downloaded_at, country FROM downloads ORDER BY id DESC LIMIT 15;'
+              sql: 'SELECT platform, downloaded_at, country, user_agent FROM downloads ORDER BY id DESC LIMIT 20;'
             }
           },
           { type: 'close' }
@@ -62,7 +60,8 @@ export default async function handler(req, res) {
     const recent = recentRows.map(r => ({
       platform: r[0]?.value,
       downloaded_at: r[1]?.value,
-      country: r[2]?.value || 'Unknown'
+      country: r[2]?.value || 'Unknown',
+      browser: (r[3]?.value || '').substring(0, 100)
     }));
 
     return res.status(200).json({
@@ -73,4 +72,4 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
-}
+};
