@@ -15,22 +15,6 @@
 
 ---
 
-## 🌐 Website
-
-The source code for the official website is in the [`shamil-site/`](./shamil-site/) directory.
-
-### Preview Locally
-```bash
-cd shamil-site
-node preview-server.js
-# Open http://localhost:5050 in your browser
-```
-
-### Deploying
-The site is built as a static site and can be deployed directly to Vercel, Netlify, or GitHub Pages.
-
----
-
 ## 🔒 Privacy & Safety
 - **100% Offline**: All text extraction, OCR, clustering, and sorting run locally on your machine.
 - **English & Arabic**: Native bilingual processing and OCR.
