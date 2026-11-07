@@ -9,10 +9,25 @@
   $$('[data-note]').forEach(function (e) {
     var d = D[e.dataset.note]; if (d) e.textContent = d.note + ' · ' + d.size;
   });
+  function trackDownload(platform) {
+    try {
+      var payload = JSON.stringify({ platform: platform });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/track', new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true });
+      }
+    } catch (_) {}
+  }
+
   $$('[data-dl]').forEach(function (a) {
     var d = D[a.dataset.dl]; if (!d) return;
     a.href = d.url; a.setAttribute('download', d.file);
     if (a.classList.contains('link') && !a.textContent) a.textContent = d.file + (d.size ? ' (' + d.size + ')' : '');
+    a.addEventListener('click', function () {
+      var p = (a.dataset.dl || '').indexOf('win') >= 0 ? 'windows' : 'mac';
+      trackDownload(p);
+    });
   });
   if (C.contactEmail) {
     $$('[data-contact]').forEach(function (e) { e.innerHTML = ' · <a href="mailto:' + C.contactEmail + '">' + C.contactEmail + '</a>'; });
